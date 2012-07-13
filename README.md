@@ -11,11 +11,11 @@ About the output
 ---
 As we all know XML and JSON are different. Not only in verbosity, but also in the way data is store and represented. This utility does it's best to output JSON structure as close as possible to the source, but there are things you should know about, so here we go.
 
-* **Handling node attributes** - In XML attributes are stored as part of the node tag and thus allow for their names to be the same as node names (i.e \<name name="sam"/\>), this is considered a valid XML, in JSON however this would mean a big no-no, because matching names would simply overwrite each other. To avoid this confilct, all attribute names are prefixed with "@" sign. - Ex.  <name name="sam"/> => {"name":{"@name":"sam"}};
+* **Handling node attributes** - In XML attributes are stored as part of the node tag and thus allow for their names to be the same as node names (i.e \<name name="sam"/\>), this is considered a valid XML, in JSON however this would mean a big no-no, because matching names would simply overwrite each other. To avoid this confilct, all attribute names are prefixed with "@" sign. - Ex.  \<name name="sam"/\> => {"name":{"@name":"sam"}};
 
-* **Handling node value and CDATA** - Node value is the Text between the open/close of a tag, however there are cases where node may contain CDATA element in addition to just text value (i.e. <node>Hello<![CDATA[ World]]></node>). in this example we don't want to loose any content, so converter will concatinate values of both Text and CDATA nodes. These values will be accessible through a "Text" property. - Ex. <node>Hello<![CDATA[ World]]></node> => {"node":{"Text":"Hello World"}}.
+* **Handling node value and CDATA** - Node value is the Text between the open/close of a tag, however there are cases where node may contain CDATA element in addition to just text value (i.e. \<node\>Hello<![CDATA[ World]]>\</node\>). in this example we don't want to loose any content, so converter will concatinate values of both Text and CDATA nodes. These values will be accessible through a "Text" property. - Ex. \<node\>Hello<![CDATA[ World]]>\</node\> => {"node":{"Text":"Hello World"}}.
 
-* **Root node handling** - Converter will create a root node element at the top of the JSON structure. - Ex. <root><node>Hello<![CDATA[ World]]></node></root> => {"root":{"node":{"Text":"Hello World"}}}.
+* **Root node handling** - Converter will create a root node element at the top of the JSON structure. - Ex. \<root\>\<node\>Hello<![CDATA[ World]]>\</node\>\</root\> => {"root":{"node":{"Text":"Hello World"}}}.
 
 #### Examples
 Using with string XML
