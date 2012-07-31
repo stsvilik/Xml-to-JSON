@@ -52,3 +52,14 @@ Using as AJAX dataFilter
 		console.dir(jsonData);
 		console.log(JSON.stringify(jsonData));
 	});
+
+Using as jQuery Plugin
+
+	$.ajax({
+		url: "data/file.xml",
+		dataType:"xml"
+	}).done(function(xmlData){
+		var jsonData = $.xmlToJSON(xmlData);
+		console.dir(jsonData);
+		console.log(JSON.stringify(jsonData));
+	});
