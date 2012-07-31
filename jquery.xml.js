@@ -147,5 +147,5 @@
   $.xmlToJSON = function(xml) {
     return XMLConverter.convert(xml);
   };
-
+  
 }(window, jQuery));
