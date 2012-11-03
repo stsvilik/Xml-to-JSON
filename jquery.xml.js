@@ -54,10 +54,10 @@
 
   XMLConverter = {
     isXML: function(o) {
-      return (typeof(o) === "object" && o.nodeType !== undef);
+        return (typeof(o) === "object" && o.nodeType !== undef);
     },
     getRoot: function(doc) {
-      return (doc.nodeType === NODE_TYPES.Root) ? doc.documentElement : (doc.nodeType === NODE_TYPES.Fragment) ? doc.firstChild : doc;
+        return (doc.nodeType === NODE_TYPES.Root) ? doc.documentElement : (doc.nodeType === NODE_TYPES.Fragment) ? doc.firstChild : doc;
     },
     /**
      * Begins the conversion process. Will automatically convert XML string into XMLDocument
@@ -65,24 +65,22 @@
      * @return {JSON} JSON object representing the XML data tree
      */
     convert: function(xml) {
-      var out = {},
-        xdoc = typeof(xml) === "string" ? parseXMLString(xml) : this.isXML(xml) ? xml : undef,
-        root;
-      if (!xdoc) {
-        throw new Error("Unable to parse XML");
-      }
-      //If xdoc is just a text or CDATA return value
-      if (xdoc.nodeType === NODE_TYPES.Text || xdoc.nodeType === NODE_TYPES.CDATA) {
-        return xdoc.nodeValue;
-      }
-      //Extract root node
-      root = this.getRoot(xdoc);
-      //Create first root node
-      out[root.nodeName] = {};
-      //Start assembling the JSON tree (recursive)
-      this.process(root, out[root.nodeName]);
-      //Parse JSON string and attempt to return it as an Object
-      return out;
+        var out = {}, xdoc = typeof(xml) === "string" ? parseXMLString(xml) : this.isXML(xml) ? xml : undef, root;
+        if (!xdoc) {
+            throw new Error("Unable to parse XML");
+        }
+        //If xdoc is just a text or CDATA return value
+        if (xdoc.nodeType === NODE_TYPES.Text || xdoc.nodeType === NODE_TYPES.CDATA) {
+            return xdoc.nodeValue;
+        }
+        //Extract root node
+        root = this.getRoot(xdoc);
+        //Create first root node
+        out[root.nodeName] = {};
+        //Start assembling the JSON tree (recursive)
+        this.process(root, out[root.nodeName]);
+        //Parse JSON string and attempt to return it as an Object
+        return out;
     },
     /**
      * Recursive xmlNode processor. It determines the node type and processes it accordingly.
@@ -90,52 +88,51 @@
      * @param  {Object} buff Buffer object which will contain the JSON equivalent properties
      */
     process: function(node, buff) {
-      var child, attr, name, att_name, value, i, j, tmp, iMax, jMax;
-      if (node.hasChildNodes()) {
-        iMax = node.childNodes.length;
-        for (i = 0; i < iMax; i++) {
-          child = node.childNodes[i];
-          //Check nodeType of each child node
-          switch (child.nodeType) {
-          case NODE_TYPES.Text:
-            //If parent node has both CDATA and Text nodes, we just concatinate them together
-            buff.Text = buff.Text ? buff.Text + $.trim(child.nodeValue) : $.trim(child.nodeValue);
-            break;
-          case NODE_TYPES.CDATA:
-            //If parent node has both CDATA and Text nodes, we just concatinate them together
-            value = child[child.text ? "text" : "nodeValue"]; //IE attributes support
-            buff.Text = buff.Text ? buff.Text + value : value;
-            break;
-          case NODE_TYPES.Element:
-            name = child.nodeName;
-            tmp = {};
-            //Populate attributes
-            jMax = child.attributes.length;
-            if (jMax) {
-              for (j = jMax - 1; j >= 0; j--) {
-                attr = child.attributes[j];
+      var child, attr, name, att_name, value, i, j, tmp, iMax;
+        if(node.hasChildNodes()) {
+            iMax = node.childNodes.length;
+            for(i = 0; i < iMax; i++) {
+                child = node.childNodes[i];
+                //Check nodeType of each child node
+                switch(child.nodeType) {
+                case NODE_TYPES.Text:
+                    //If parent node has both CDATA and Text nodes, we just concatinate them together
+                    buff.Text = buff.Text ? buff.Text + $.trim(child.nodeValue) : $.trim(child.nodeValue);
+                    break;
+                case NODE_TYPES.CDATA:
+                    //If parent node has both CDATA and Text nodes, we just concatinate them together
+                    value = child[child.text ? "text" : "nodeValue"]; //IE attributes support
+                    buff.Text = buff.Text ? buff.Text + value : value;
+                    break;
+                case NODE_TYPES.Element:
+                    name = child.nodeName;
+                    tmp = {};
+                    //Node name already exists in the buffer and it's a NodeSet
+                    if(name in buff) {
+                        if(buff[name].length) {
+                            this.process(child, tmp);
+                            buff[name].push(tmp);
+                        } else { //If node exists in the parent as a single entity
+                            this.process(child, tmp);
+                            buff[name] = [buff[name], tmp];
+                        }
+                    } else { //If node does not exist in the parent
+                        this.process(child, tmp);
+                        buff[name] = tmp;
+                    }
+                    break;
+                }
+            }
+        }
+        //Populate attributes
+        if(node.attributes.length) {
+            for(j = node.attributes.length - 1; j >= 0; j--) {
+                attr = node.attributes[j];
                 att_name = $.trim(attr.name);
                 value = attr.value;
-                tmp["@" + att_name] = value;
-              }
+                buff["@" + att_name] = value;
             }
-            //Node name already exists in the buffer and it's a NodeSet
-            if (name in buff) {
-              if (buff[name].length) {
-                this.process(child, tmp);
-                buff[name].push(tmp);
-              } else { //If node exists in the parent as a single entity
-                this.process(child, tmp);
-                buff[name] = [buff[name], tmp];
-              }
-            } else { //If node does not exist in the parent
-              this.process(child, tmp);
-              buff[name] = tmp;
-            }
-            break;
-          }
         }
-      }
     }
   };
 

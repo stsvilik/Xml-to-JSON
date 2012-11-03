@@ -125,16 +125,6 @@
 					case NODE_TYPES.Element:
 						name = child.nodeName;
 						tmp = {};
-						//Populate attributes
-						jMax = child.attributes.length;
-						if (jMax) {
-							for (j = jMax - 1; j >= 0; j--) {
-								attr = child.attributes[j];
-								att_name = attr.name.trim();
-								value = attr.value;
-								tmp["@" + att_name] = value;
-							}
-						}
 						//Node name already exists in the buffer and it's a NodeSet
 						if (name in buff) {
 							if (buff[name].length) {
@@ -152,6 +142,15 @@
 					}
 				}
 			}
+            //Populate attributes
+            if(node.attributes.length) {
+                for(j = node.attributes.length - 1; j >= 0; j--) {
+                    attr = node.attributes[j];
+                    att_name = attr.name.trim();
+                    value = attr.value;
+                    buff["@" + att_name] = value;
+                }
+            }
 		}
 	};
 
